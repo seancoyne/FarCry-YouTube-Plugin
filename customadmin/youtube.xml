@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<webtop>
+  <section mergeType="merge" id="content">
+    <subsection id="youtubeSubSection" sequence="1" label="YouTube">
+      <menu sequence="10" mergeType="merge" id="youtubeMenu" label="YouTube">
+        <menuitem sequence="10" id="youtubeVideoMenuItem" label="Videos" link="/admin/customadmin.cfm?module=customlists/youtubeVideo.cfm&amp;plugin=youtube" relatedtype="youtubeVideo" />
+		<menuitem sequence="20" id="youtubePlaylistMenuItem" label="Playlists" link="/admin/customadmin.cfm?module=customlists/youtubePlaylist.cfm&amp;plugin=youtube" relatedtype="youtubePlaylist" />
+      </menu>
+    </subsection>
+  </section>
+</webtop>
