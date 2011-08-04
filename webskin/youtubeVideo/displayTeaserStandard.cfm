@@ -18,7 +18,7 @@
 		
 		<cfif len(trim(stobj.thumbnail_url))>
 			<skin:buildlink objectid="#stobj.objectid#" view="displayPageFancybox" class="fancybox">
-				<cfoutput><img src="#stobj.thumbnail_url#" width="100" alt="#xmlFormat(stobj.title)#" /></cfoutput>
+				<cfoutput><img src="#stobj.thumbnail_url#" alt="#xmlFormat(stobj.title)#" /></cfoutput>
 			</skin:buildlink>
 		</cfif>
 		

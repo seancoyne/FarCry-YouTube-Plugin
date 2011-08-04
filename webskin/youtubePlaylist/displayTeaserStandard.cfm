@@ -15,7 +15,7 @@
 
 <cfoutput>
 	<div class="youtubePlaylistTeaser">
-		<h3><cfif len(trim(thumbURL))><skin:buildlink objectid="#stobj.objectid#"><img src="#thumbURL#" width="100" alt="#stobj.title#" /></skin:buildLink> </cfif><skin:buildLink objectid="#stobj.objectid#">#stobj.title#</skin:buildLink></h3>
+		<h3><cfif len(trim(thumbURL))><skin:buildlink objectid="#stobj.objectid#"><img src="#thumbURL#" alt="#stobj.title#" /></skin:buildLink> </cfif><skin:buildLink objectid="#stobj.objectid#">#stobj.title#</skin:buildLink></h3>
 		<cfif len(trim(stobj.content))>
 			<p>#application.stPlugins.youtube.oCustomFunctions.xhtmlParagraphFormat(stobj.content)#</p>
 		</cfif>
