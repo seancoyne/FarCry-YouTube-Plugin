@@ -7,12 +7,17 @@
 
 <admin:header title="Playlists" />
 
+<cfset stFilterMetadata = {} />
+<cfset stFilterMetadata.title = { ftDisplayOnly = false } />
+<cfset stFilterMetadata.author = { ftDisplayOnly = false } />
+
 <ft:objectadmin 
 	lButtons="unlock"
 	typename="youtubePlaylist"
 	columnList="title,author,published,updated,datetimecreated,datetimelastupdated" 
 	sortableColumns="title,author,published,updated,datetimecreated,datetimelastupdated"
 	lFilterFields="title,author"
+	stFilterMetadata="#stFilterMetadata#"
 	sqlorderby="title"
 	plugin="youtube" />
 

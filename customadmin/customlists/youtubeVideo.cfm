@@ -7,6 +7,11 @@
 
 <admin:header title="Videos" />
 
+
+<cfset stFilterMetadata = {} />
+<cfset stFilterMetadata.title = { ftDisplayOnly = false } />
+<cfset stFilterMetadata.author = { ftDisplayOnly = false } />
+
 <cfscript>
 aCustomColumns = [
 	{ webskin = "cellThumbnail.cfm", title = "Thumbnail", sortable = false, property = "thumbnail_url" }
@@ -20,6 +25,7 @@ aCustomColumns = [
 	aCustomColumns="#aCustomColumns#" 
 	sortableColumns="title,author,updated,datetimecreated,datetimelastupdated"
 	lFilterFields="title,author"
+	stFilterMetadata="#stFilterMetadata#"
 	sqlorderby="title"
 	plugin="youtube" />
 
