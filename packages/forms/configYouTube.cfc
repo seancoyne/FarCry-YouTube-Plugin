@@ -1,4 +1,4 @@
-<cfcomponent output="false" extends="farcry.core.packages.forms.forms" displayname="YouTube API" key="youtube">
+<cfcomponent output="false" hint="Configures settings for the YouTube API" extends="farcry.core.packages.forms.forms" displayname="YouTube API" key="youtube">
 	
 	<cfproperty ftSeq="10" ftFieldset="YouTube API" name="devkey" type="nstring" ftType="string" ftLabel="Dev. Key" ftDefault="" default="" ftValidation="required" />
 	<cfproperty ftSeq="20" ftFieldset="YouTube API" name="username" type="nstring" ftType="string" ftLabel="Username" ftDefault="" default="" ftValidation="required" ftHint="The username of the YouTube account to use." />
