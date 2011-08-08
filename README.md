@@ -5,6 +5,11 @@ Sean Coyne - http://www.n42designs.com/
 
 This FarCry plugin provides integration with YouTube.  It will sync both videos and playlists from a specified account.
 
+License
+-------
+
+This project is released under the Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0.html
+
 Acknowledgements
 ----------------
 
