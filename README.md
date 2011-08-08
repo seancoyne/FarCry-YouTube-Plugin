@@ -21,7 +21,7 @@ Requirements
 * ColdFusion 9.0.1
 * FarCry 6.0.14
 
-This plugin has been tested on ColdFusion 9.0.1 and FarCry 6.0.14.  It should work in FarCry 6.1.x as well, and older FarCry 6.0.x versions as well.
+This plugin has been tested on ColdFusion 9.0.1 and FarCry 6.0.14.  It should work in FarCry 6.1.x and older FarCry 6.0.x versions as well.
 
 Installation
 ------------
