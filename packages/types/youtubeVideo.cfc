@@ -90,4 +90,108 @@
 		</cfif>
 	</cffunction>	
 	
+	<cffunction name="sync" access="public" output="false" returntype="void" hint="Syncs the FarCry database with the results from the API">
+		
+		<cfset var stVideo = "" />
+		<cfset var playlistId = "" />
+		<cfset var oPlaylist = application.fapi.getContentType("youtubePlaylist") />
+			
+		<!--- load the playlists --->
+		<cfset var qPlaylists = application.stPlugins.youtube.oYouTube.getPlaylists(user = application.fapi.getConfig(key = 'youtube', name = 'username')) />
+		
+		<cfset var stPlaylistVideos = {} />
+		
+		<!--- loop over the playlists, if found, update, if not, create it --->
+		<cfloop query="qPlaylists">
+				
+			<cfset var stPlaylist = oPlaylist.saveFromAPI(application.stPlugins.youtube.oCustomFunctions.queryRowToStruct(qPlaylists,qPlaylists.currentRow)) />
+			
+			<!--- load the videos for this playlist --->
+			<cfset var qVideos = application.stPlugins.youtube.oYouTube.getPlaylist(plurl = qPlaylists.url[qPlaylists.currentRow]) />
+			
+			<!--- save a copy of the query for use later --->
+			<cfset stPlaylistVideos[stPlaylist.objectid] = duplicate(qVideos) />
+			
+			<!--- loop over the videos, if found, update, if not, create it --->
+			<cfloop query="qVideos">
+				
+				<cfset stVideo = saveFromAPI(application.stPlugins.youtube.oCustomFunctions.queryRowToStruct(qVideos,qVideos.currentRow)) />
+				
+				<!--- add it to the playlist (if necessary) ---->
+				<cfif not oPlaylist.playlistContainsVideo(playlistId = stPlaylist.objectId, videoId = stVideo.objectId)>
+					
+					<cfset oPlaylist.addVideoToPlaylist(playlistId = stPlaylist.objectId, videoId = stVideo.objectId) />
+					
+				</cfif>
+				
+			</cfloop>
+			
+		</cfloop>
+		
+		<!--- get the user's videos that aren't on playlists and add/update those --->
+		
+		<!--- first, get all the user's videos --->
+		<cfset var qUserVideos = application.stPlugins.youtube.oYouTube.getVideosByUser(username = application.fapi.getConfig(key = 'youtube', name = 'username')) />	
+		
+		<!--- filter out the videos that are on playlists (they have already been processed --->
+		<cfset var qNonPlaylistVideos = "" />
+		<cfquery name="qNonPlaylistVideos" dbtype="query">
+			select * from qUserVideos where
+			1 = 1
+			<cfloop collection="#stPlaylistVideos#" item="playlistId">
+				<cfset q = stPlaylistVideos[playlistId] />
+				and id not in (<cfqueryparam list="true" cfsqltype="cf_sql_varchar" value="#valueList(q.id)#" />)
+			</cfloop>
+		</cfquery>
+		<!--- save a copy of this for use later (deletion phase) --->
+		<cfset stPlaylistVideos["noplaylist"] = duplicate(qNonPlaylistVideos) />
+		
+		<!--- add/update the videos that aren't on playlists --->
+		<cfloop query="qNonPlaylistVideos">
+			<cfset stVideo = saveFromAPI(application.stPlugins.youtube.oCustomFunctions.queryRowToStruct(qNonPlaylistVideos,qNonPlaylistVideos.currentRow)) />
+		</cfloop>
+		
+		<!--- now, check for FarCry records that have no matching record from the API.  If found, it was removed, so delete from FarCry --->
+		
+		<!--- get the playlist records from FarCry --->
+		<cfset var qPlaylistRecords = application.fapi.getContentObjects(typename = "youtubePlaylist", lProperties = "objectid, playlistid") />
+		
+		<!--- grab the ones that aren't in the API data --->
+		<cfset var qPlaylistsToDelete = "" />
+		<cfquery name="qPlaylistsToDelete" dbtype="query">
+			select objectid from qPlaylistRecords where playlistid not in (<cfqueryparam list="true" cfsqltype="cf_sql_varchar" value="#valueList(qPlaylists.playlistid)#" />)
+		</cfquery>
+		
+		<!--- delete 'em --->
+		<cfloop query="qPlaylistsToDelete">
+			<cfset oPlaylist.deleteData(objectid = qPlaylistsToDelete.objectid[qPlaylistsToDelete.currentRow]) />	
+		</cfloop>
+		
+		<!--- get the video records from FarCry --->
+		<cfset var qVideoRecords = application.fapi.getContentObjects(typename = "youtubeVideo", lProperties = "objectid, id") />
+		
+		<!--- grab the ones that aren't in the API data --->
+		<cfset var qVideosToDelete = "" />
+		<cfquery name="qVideosToDelete" dbtype="query">
+			select objectid from qVideoRecords where
+			 
+			1 = 1
+			
+			<cfloop collection="#stPlaylistVideos#" item="playlistId">
+				<cfset q = stPlaylistVideos[playlistId] />
+				and id not in (<cfqueryparam list="true" cfsqltype="cf_sql_varchar" value="#valueList(q.id)#" />)
+			</cfloop>
+			
+		</cfquery>
+		
+		<!--- delete 'em --->
+		<cfloop query="qVideosToDelete">
+			
+			<!--- delete the record --->
+			<cfset deleteData(objectid = qVideosToDelete.objectid[qVideosToDelete.currentRow]) />
+			
+		</cfloop>
+		
+	</cffunction>
+	
 </cfcomponent>
