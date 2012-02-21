@@ -28,7 +28,7 @@ Installation
 
 * Place the plugin files in a folder called "youtube" in your /farcry/plugins directory.
 * Add "youtube" to the this.plugins list in your project's farcryConstructor.cfm
-* Copy the contents of the "www" folder to a "youtube" folder under your project's webroot, or create a /youtube web server alias (virtual directory) pointing to the plugin's www folder.
+* Copy the contents of the "www" folder to a "youtube" folder under your project's webroot, or create a [farcry root]/youtube web server alias (virtual directory) pointing to the plugin's www folder.  If you are running a subdirectory installation of FarCry, this would be /[subdir]/youtube/, a standalone or advanced installation, this would be simply /youtube/.
 * Perform an "?updateapp=" or reinitialize the application in the webtop.
 
 Configuration
