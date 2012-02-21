@@ -29,6 +29,22 @@
 	<cfproperty ftSeq="610" ftFieldset="Thumbnail" ftLabel="Thumb. URL" ftDisplayOnly="true" name="thumbnail_url" type="nstring" ftType="url" default="" />
 	<cfproperty ftSeq="620" ftFieldset="Thumbnail" ftLabel="Thumb. Width" ftDisplayOnly="true" name="thumbnail_width" type="integer" ftType="integer" default="0" />
 	
+	<cffunction name="onDelete" returntype="void" access="public" output="false" hint="Is called after the object has been removed from the database">
+		<cfargument name="typename" type="string" required="true" hint="The type of the object" />
+		<cfargument name="stObject" type="struct" required="true" hint="The object" />
+		
+		<!--- remove all references to this video from playlists and rules --->
+		
+		<!--- playlists --->
+		<cfset application.fapi.getContentType("youtubePlaylist").removeVideoFromAllPlaylists(arguments.stobject.objectid) />
+		
+		<!--- rules --->
+		<cfset application.fapi.getContentType("ruleEmbedVideo").cleanUp() />
+		<cfset application.fapi.getContentType("ruleListVideos").cleanUp() />
+		
+		<cfreturn super.onDelete(argumentCollection = arguments) />
+	</cffunction>
+	
 	<cffunction name="updateFromAPI" access="public" output="false" returntype="struct" hint="Updates a FarCry record with data from the YouTube API">
 		<cfargument name="data" type="struct" required="true" />
 		<cfset var st = getVideoByLink(arguments.data.link) />

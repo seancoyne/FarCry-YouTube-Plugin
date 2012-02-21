@@ -11,11 +11,19 @@
 	<cfloop array="#stobj.aPlaylists#" index="playlistId">
 		<cfset stPlaylist = application.fapi.getContentObject(typename = "youtubePlaylist", objectid = playlistId) />
 		<cfloop array="#stPlaylist.aVideos#" index="videoId">
-			<cfset arrayAppend(aVideosToDisplay, videoId) />
+			<!--- ensure the video exists --->
+			<cfif application.fapi.findType(videoId) eq "youtubeVideo">
+				<cfset arrayAppend(aVideosToDisplay, videoId) />
+			</cfif>
 		</cfloop>
 	</cfloop>
 <cfelseif arrayLen(stobj.aVideos)>
-	<cfset aVideosToDisplay = stobj.aVideos />
+	<cfloop array="#stobj.aVideos#" index="videoId">
+		<!--- ensure the video exists --->
+		<cfif application.fapi.findType(videoId) eq "youtubeVideo">
+			<cfset aVideosToDisplay = stobj.aVideos />
+		</cfif>
+	</cfloop>
 </cfif>
 
 <cfif arrayLen(aVideosToDisplay)>

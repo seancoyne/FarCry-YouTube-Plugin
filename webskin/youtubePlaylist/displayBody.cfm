@@ -11,6 +11,13 @@
 	</cfif>
 </cfoutput>
 
+<!--- ensure all the videos listed actually exist --->
+<cfloop from="#arrayLen(stobj.aVideos)#" to="1" index="i" step="-1">
+	<cfif application.fapi.findType(stobj.aVideos[i]) neq "youtubeVideo">
+		<cfset arrayDeleteAt(stobj.aVideos,i) />
+	</cfif>	
+</cfloop>
+
 <skin:pagination array="#stobj.aVideos#" typename="youtubeVideo" paginationId="">	
 	<skin:view typename="youtubeVideo" objectid="#stObject.objectId#" webskin="displayTeaserStandard" />
 </skin:pagination>

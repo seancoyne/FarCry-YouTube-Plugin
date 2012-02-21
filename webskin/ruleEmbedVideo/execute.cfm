@@ -4,6 +4,9 @@
 
 <cfimport taglib="/farcry/core/tags/webskin" prefix="skin" />
 
-<skin:view objectid="#stobj.video#" typename="youtubeVideo" webskin="displayTeaserEmbeddedVideo" />
+<!--- ensure the video exists --->
+<cfif application.fapi.findType(stobj.video) eq "youtubeVideo"> 
+	<skin:view objectid="#stobj.video#" typename="youtubeVideo" webskin="displayTeaserEmbeddedVideo" />
+</cfif>
 
 <cfsetting enablecfoutputonly="false" />

@@ -79,8 +79,13 @@
 		<cfargument name="objectId" type="uuid" required="true" hint="The ObjectID of the video" />
 		<cfset var q = "" />
 		<cfquery name="q" datasource="#application.dsn#">
-			delete from #application.dbowner#youtubeplaylist_avideos where data = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.objectid#" />
+			select parentid from #application.dbowner#youtubeplaylist_avideos where data = <cfqueryparam cfsqltype="cf_sql_varchar" value="#arguments.objectid#" />;
 		</cfquery>
+		<cfloop query="q">
+			<cfset var stPlaylist = getData(q.parentid[q.currentRow]) />
+			<cfset arrayDeleteAt(stPlaylist.aVideos,arrayFindNoCase(stPlaylist.aVideos,arguments.objectid)) />
+			<cfset setData(stPlaylist) />
+		</cfloop>
 	</cffunction>
 	
 </cfcomponent>
