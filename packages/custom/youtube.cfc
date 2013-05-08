@@ -80,6 +80,49 @@
 </cffunction>
 --->
 
+<cffunction name="addVideoToPlaylist" access="public" returnType="any" output="false" hint="Adds a vide to a playlist.">
+	<cfargument name="playlistId" type="string" required="true">
+	<cfargument name="videoId" type="string" required="true">
+
+	<cfset var resxml = "">
+	<cfset var theurl = "http://gdata.youtube.com/feeds/api/playlists/#arguments.playlistid#">
+
+	<cfset var meta = "">
+<!--- defaults to position 1 for now --->	
+<cfsavecontent variable="meta">
+<cfoutput>
+<?xml version="1.0" encoding="UTF-8"?>
+<entry xmlns="http://www.w3.org/2005/Atom"
+    xmlns:yt="http://gdata.youtube.com/schemas/2007">
+<id>#arguments.videoid#</id>
+  <yt:position>1</yt:position>
+</entry>
+</cfoutput>
+</cfsavecontent>
+
+	<cfset meta = trim(meta)>
+
+	<cfhttp url="#theurl#" method="post" result="result">
+		<cfhttpparam type="header" name="Host" value="gdata.youtube.com">
+		<cfhttpparam type="header" name="Content-Type" value="application/atom+xml">
+		<cfhttpparam type="header" name="Authorization" value="GoogleLogin auth=#variables.authtoken#">
+		<cfhttpparam type="header" name="X-GData-Client" value="youtubecfc">
+		<cfhttpparam type="header" name="X-GData-Key" value="key=#variables.devkey#">
+		<cfhttpparam type="body" value="#meta#">
+	</cfhttp>
+
+	<cfif result.responseheader.explanation is "Created">
+		<cfreturn true>
+	<cfelse>
+		<cfif isXml(result.filecontent)>
+			<cfset resxml = xmlParse(result.fileContent)>
+			<cfthrow message="YouTubeCFC Upload Error: Domain=#resxml.errors.error.domain.xmlText#, Code=#resxml.errors.error.code.xmlText#">
+		<cfelse>
+			<cfthrow message="YouTubeCFC Upload Error: Status: #result.responseheader.status_code# / Explanation: #result.responseheader.explanation#">
+		</cfif>	
+	</cfif>		
+</cffunction>
+	
 <cffunction name="delete" access="public" returnType="any" output="false" hint="I update a video.">
 	<cfargument name="videoId" type="string" required="true">
 	
@@ -423,6 +466,11 @@ is not valid. (The invalid value does not contain a comma between "surfing" and 
 			<cfloop item="key" collection="#pentry#">
 				<cfset querySetCell(results, key, pentry[key])>
 			</cfloop>
+
+			<!--- keywords is in a meta key now --->
+			<cfif structKeyExists(entry, "media:keywords")>
+				<cfset querySetCell(results, "keywords", entry["media:keywords"].xmlText)>
+			</cfif>
 		</cfloop>
 	</cfif>
 		
@@ -776,11 +824,15 @@ is not valid. (The invalid value does not contain a comma between "surfing" and 
 		<cfif arguments.entry.category[y].xmlAttributes.scheme is "http://gdata.youtube.com/schemas/2007/keywords.cat">
 			<cfset keywordList = listAppend(keywordList, arguments.entry.category[y].xmlAttributes.term)>
 		<cfelseif entry.category[y].xmlAttributes.scheme is "http://gdata.youtube.com/schemas/2007/categories.cat">
-			<cfset categoryList = listAppend(categoryList, arguments.entry.category[y].xmlAttributes.term)>
+			<cfset categoryList = listAppend(categoryList, arguments.entry.category[y].xmlAttributes.label)>
 		</cfif>
 	</cfloop>
 
+	<!--- 
 	<cfset s.keywords = keywordList>
+	Note - now keywords are in a media:keyword item. This means part of the code above could be removed later.
+	--->
+
 	<cfset s.categories = categoryList>
 	<cfset s.title = arguments.entry.title.xmlText>
 	<cfif structKeyExists(arguments.entry, "content")>
@@ -809,7 +861,7 @@ is not valid. (The invalid value does not contain a comma between "surfing" and 
 		<cfelse>
 			<cfset s.description = "">
 		</cfif>
-		<cfif structKeyExists(arguments.entry, "yt:duration")>
+		<cfif structKeyExists(arguments.entry["media:group"], "yt:duration")>
 			<cfset s.duration = arguments.entry["media:group"]["yt:duration"].xmlattributes.seconds>
 		<cfelse>
 			<cfset s.duration = "">
@@ -824,6 +876,10 @@ is not valid. (The invalid value does not contain a comma between "surfing" and 
 			<cfset s.thumbnail_width = "">
 			<cfset s.thumbnail_height = "">
 		</cfif>
+		<cfif structKeyExists(arguments.entry["media:group"], "media:keywords")>
+			<cfset s.keywords = arguments.entry["media:group"]["media:keywords"].xmltext>
+		</cfif>
+
 	</cfif>
 
 	<cfset s.viewcount = "">
@@ -858,7 +914,7 @@ is not valid. (The invalid value does not contain a comma between "surfing" and 
 			<cfset s.videostatus = arguments.entry["app:control"]["yt:state"].xmlAttributes.name>
 		</cfif>
 	</cfif>
-	
+
 	<cfreturn s>
 
 </cffunction>
@@ -918,7 +974,6 @@ is not valid. (The invalid value does not contain a comma between "surfing" and 
 		<cfreturn resxml.entry.id.xmlText>
 	<cfelse>
 	<cfoutput>#theurl#<p>#htmlcodeformat(meta)#</cfoutput>
-	<cfdump var="#result#" abort>
 		<cfif isXml(result.filecontent)>
 			<cfset resxml = xmlParse(result.fileContent)>
 			<cfthrow message="YouTubeCFC Upload Error: Domain=#resxml.errors.error.domain.xmlText#, Code=#resxml.errors.error.code.xmlText#">
@@ -983,7 +1038,6 @@ is not valid. (The invalid value does not contain a comma between "surfing" and 
 			<cfset resxml = xmlParse(result.fileContent)>
 			<cfthrow message="YouTubeCFC Upload Error: Domain=#resxml.errors.error.domain.xmlText#, Code=#resxml.errors.error.code.xmlText#">
 		<cfelse>
-			<cfdump var="#result#" abort>
 			<cfthrow message="YouTubeCFC Upload Error: Status: #result.responseheader.status_code# / Explanation: #result.responseheader.explanation#">
 		</cfif>	
 	</cfif>

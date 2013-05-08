@@ -1,5 +1,5 @@
 LICENSE 
-Copyright 2010-2011 Raymond Camden
+Copyright 2010-2012 Raymond Camden
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -24,6 +24,15 @@ a valid YouTube username, password, as well as a developer API key. In general t
 CFC has a hint value which tells what it does.
 
 HISTORY
+December 6, 2012:
+Mods to keyword support. NOTE - keywords only work in authenticated calls now.
+
+July 5, 2012:
+Fixed duration support. Fix written by user "Roberto" on RIAForge. (Issue 3)
+
+October 18, 2011:
+addVideoToPlaylist added
+
 April 12, 2011:
 getChannels now correctly handles cases where summary and countHit do not exist.
 
