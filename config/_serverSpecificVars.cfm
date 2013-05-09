@@ -9,7 +9,7 @@
 
 <cfscript>
 	application.stPlugins.youtube = {
-		oYouTube = createObject("component","farcry.plugins.youtube.packages.custom.youtube").init(devkey = application.fapi.getConfig(key = 'youtube', name = 'devkey', default="")),
+		oYouTube = createObject("component","farcry.plugins.youtube.packages.custom.custom").init(devkey = application.fapi.getConfig(key = 'youtube', name = 'devkey', default="")),
 		oCustomFunctions = createObject("component","farcry.plugins.youtube.packages.custom.customFunctions")
 	};
 </cfscript>
