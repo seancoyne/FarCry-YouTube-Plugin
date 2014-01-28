@@ -92,12 +92,13 @@
 	
 	<cffunction name="sync" access="public" output="false" returntype="void" hint="Syncs the FarCry database with the results from the API">
 		
+		<cfset var q = "" />
 		<cfset var stVideo = "" />
 		<cfset var playlistId = "" />
 		<cfset var oPlaylist = application.fapi.getContentType("youtubePlaylist") />
 			
 		<!--- load the playlists --->
-		<cfset var qPlaylists = application.stPlugins.youtube.oYouTube.getPlaylists(user = application.fapi.getConfig(key = 'youtube', name = 'username')) />
+		<cfset var qPlaylists = application.stPlugins.youtube.oYouTube.getPlaylists(user = application.fapi.getConfig(key = 'youtube', name = 'username'), max = 50) />
 		
 		<cfset var stPlaylistVideos = {} />
 		

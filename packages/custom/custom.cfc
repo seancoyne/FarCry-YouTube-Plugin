@@ -1,4 +1,40 @@
 <cfcomponent output="false" extends="youtube">
+	<cffunction name="countVideosForUser" access="public" returntype="numeric" output="false">
+		<cfargument name="username" type="string" required="true">
+		<cfset var baseurl = "http://gdata.youtube.com/feeds/api/users/#arguments.username#/uploads?start-index=1&max-results=1">
+		<cfset var result = "" />
+		<cfhttp url="#baseurl#" result="result">	
+		<cfset result = result.filecontent>
+		<cfset var packet = xmlParse(result)>
+		<cfreturn packet.feed["openSearch:totalResults"].xmlText>
+	</cffunction>
+	<cffunction name="getVideosByUser" access="public" returnType="query" output="false"
+				hint="Gets videos for a user.">
+		<cfargument name="username" type="string" required="true">
+		<cfset var totNum = countVideosForUser(arguments.username) />
+		<cfset var start = 1 />
+		<cfset var q = "" />
+		<cfset var qThisBatch = "" />
+		<cfloop from="1" to="#totNum#" step="50" index="start">
+			<cfif start gt totNum>
+				<cfbreak />
+			</cfif>
+			<cfset var baseurl = "http://gdata.youtube.com/feeds/api/users/#arguments.username#/uploads?start-index=" & start & "&max-results=50">	
+			<cfset qThisBatch = getVideos(baseurl) />
+			<cfif not isQuery(q)>
+				<cfquery name="q" dbtype="query">
+				select #qThisBatch.columnlist# from qThisBatch where 1 = 0;
+				</cfquery>
+			</cfif>
+			<cfquery name="q" dbtype="query">
+			select #qThisBatch.columnlist# from q
+			union all
+			select #qThisBatch.columnlist# from qThisBatch
+			</cfquery>
+		</cfloop>
+
+		<cfreturn q>
+	</cffunction>
 	<cffunction name="getEmbedCode" access="public" returnType="string" output="false" hint="Utility function to return embed html">
 		<cfargument name="videoid" type="string" required="true">
 		<cfargument name="width" type="string" required="false" default="425" />
