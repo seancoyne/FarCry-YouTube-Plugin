@@ -1,4 +1,4 @@
-<cfsetting enablecfoutputonly="true" />
+<cfsetting enablecfoutputonly="true" requesttimeout="600" />
 <!--- @@displayname: Manually Sync from API --->
 <!--- @@author: Sean Coyne (sean@n42designs.com) --->
 
