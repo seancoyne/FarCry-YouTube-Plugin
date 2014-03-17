@@ -87,5 +87,15 @@
 			<cfset setData(stPlaylist) />
 		</cfloop>
 	</cffunction>
+
+	<cffunction name="cleanupPlaylists" access="public" output="false" returntype="void">
+		<cfset var q = "" />
+		<cfquery name="q" datasource="#application.dsn#">
+			delete from #application.dbowner#youtubeplaylist_avideos where data not in (
+				select objectid from youtubevideo
+			)
+		</cfquery>
+		<cfset application.fapi.flushCache("youtubePlaylist") />
+	</cffunction>
 	
 </cfcomponent>

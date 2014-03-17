@@ -182,9 +182,10 @@
 				<cfset q = stPlaylistVideos[playlistId] />
 				and id not in (<cfqueryparam list="true" cfsqltype="cf_sql_varchar" value="#valueList(q.id)#" />)
 			</cfloop>
-			
 		</cfquery>
-		
+
+		<cfset var aVideosToDelete = listToArray(valueList(qVideosToDelete.objectid)) />
+
 		<!--- delete 'em --->
 		<cfloop query="qVideosToDelete">
 			
@@ -193,6 +194,9 @@
 			
 		</cfloop>
 		
+		<!--- clean up any rogue video references on playlists --->
+		<cfset oPlaylist.cleanupPlaylists() />
+
 	</cffunction>
 	
 </cfcomponent>
