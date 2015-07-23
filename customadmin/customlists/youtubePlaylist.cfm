@@ -14,8 +14,8 @@
 <ft:objectadmin 
 	lButtons="unlock"
 	typename="youtubePlaylist"
-	columnList="title,author,published,updated,datetimecreated,datetimelastupdated" 
-	sortableColumns="title,author,published,updated,datetimecreated,datetimelastupdated"
+	columnList="title,published,datetimecreated,datetimelastupdated" 
+	sortableColumns="title,published,datetimecreated,datetimelastupdated"
 	lFilterFields="title,author"
 	stFilterMetadata="#stFilterMetadata#"
 	sqlorderby="title"

@@ -1,39 +1,147 @@
 <cfcomponent output="false" extends="youtube">
-	<cffunction name="countVideosForUser" access="public" returntype="numeric" output="false">
-		<cfargument name="username" type="string" required="true">
-		<cfset var baseurl = "http://gdata.youtube.com/feeds/api/users/#arguments.username#/uploads?start-index=1&max-results=1">
-		<cfset var result = "" />
-		<cfhttp url="#baseurl#" result="result">	
-		<cfset result = result.filecontent>
-		<cfset var packet = xmlParse(result)>
-		<cfreturn packet.feed["openSearch:totalResults"].xmlText>
+
+	<cffunction name="getPlaylist" access="public" returnType="query" output="false"
+			hint="Gets a playlist.">
+		<cfargument name="plurl" type="string" required="true">
+		<cfargument name="start" type="numeric" required="false" default="1">
+		<cfargument name="max" type="numeric" required="false" default="50">
+		
+		<cfscript>
+		
+		// determine the playlistid
+		var id = listLast(plurl, "/");
+		
+		var videos = getVideosForPlaylist(id);
+		
+		var totNum = arrayLen(videos);
+		
+		var q = queryNew("videostatus,total,id,published,updated,categories,keywords,title,content,author,authorurl,link,description,duration,thumbnail_url,thumbnail_width,thumbnail_height,viewcount,favoritecount,averagerating,numratings,commentsurl,numcomments","varchar,integer,varchar,date,date,varchar,varchar,varchar,varchar,varchar,varchar,varchar,varchar,integer,varchar,integer,integer,integer,integer,integer,integer,varchar,integer");
+		
+		for (var video in videos) {
+			
+			queryAddRow(q);
+			
+			querySetCell(q, "videostatus", video.status.privacystatus);
+			querySetCell(q, "total", totNum);
+			querySetCell(q, "id", video.snippet.resourceId.videoId);
+			querySetCell(q, "published", handleDate(video.snippet.publishedAt));
+			querySetCell(q, "updated", "");
+			querySetCell(q, "categories", "");
+			querySetCell(q, "keywords", "");
+			querySetCell(q, "title", video.snippet.title);
+			querySetCell(q, "content", "");
+			querySetCell(q, "author", "");
+			querySetCell(q, "authorurl", "");
+			querySetCell(q, "link", "http://www.youtube.com/watch?v=" & video.snippet.resourceId.videoId & "&feature=youtube_gdata");
+			querySetCell(q, "description", video.snippet.description);
+			querySetCell(q, "duration", 0);
+			
+			querySetCell(q, "thumbnail_url", video.snippet.thumbnails.default.url);
+			querySetCell(q, "thumbnail_width", video.snippet.thumbnails.default.width);
+			querySetCell(q, "thumbnail_height", video.snippet.thumbnails.default.height);
+			querySetCell(q, "viewcount", 0);
+			querySetCell(q, "favoritecount", 0);
+			querySetCell(q, "averagerating", 0);
+			querySetCell(q, "numratings", 0);
+			querySetCell(q, "commentsurl", "");
+			querySetCell(q, "numcomments", 0);
+			
+		}
+		
+		return q;
+		
+		</cfscript>
+		
 	</cffunction>
+	
+	<cfscript>
+
+	private array function getVideosForPlaylist(required string playlistid, numeric max = 50, string pagetoken = "", array videos = []) {
+		
+		var httpService = new http();
+		httpService.setURL("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet%2Cstatus&pageToken=" & arguments.pagetoken & "&maxResults=" & arguments.max & "&playlistId=" & arguments.playlistid & "&key=" & variables.devkey);
+		httpService.setMethod("GET");
+		var videoResult = deserializeJson(httpService.send().getPrefix().filecontent);
+
+		for (var item in videoResult.items) {
+			
+			arrayAppend(arguments.videos, item);
+			
+		}
+		
+		if (structKeyExists(videoResult, "nextPageToken") && len(trim(videoResult.nextPageToken))) {
+			
+			return getVideosForPlaylist(playlistid = arguments.playlistid, max = arguments.max, pagetoken = videoResult.nextPageToken, videos = arguments.videos);
+			
+		}
+		
+		return arguments.videos;
+		
+	}	
+	
+	
+	
+	</cfscript>
+	
 	<cffunction name="getVideosByUser" access="public" returnType="query" output="false"
 				hint="Gets videos for a user.">
 		<cfargument name="username" type="string" required="true">
-		<cfset var totNum = countVideosForUser(arguments.username) />
-		<cfset var start = 1 />
-		<cfset var q = "" />
-		<cfset var qThisBatch = "" />
-		<cfloop from="1" to="#totNum#" step="50" index="start">
-			<cfif start gt totNum>
-				<cfbreak />
-			</cfif>
-			<cfset var baseurl = "http://gdata.youtube.com/feeds/api/users/#arguments.username#/uploads?start-index=" & start & "&max-results=50">	
-			<cfset qThisBatch = getVideos(baseurl) />
-			<cfif not isQuery(q)>
-				<cfquery name="q" dbtype="query">
-				select #qThisBatch.columnlist# from qThisBatch where 1 = 0;
-				</cfquery>
-			</cfif>
-			<cfquery name="q" dbtype="query">
-			select #qThisBatch.columnlist# from q
-			union all
-			select #qThisBatch.columnlist# from qThisBatch
-			</cfquery>
-		</cfloop>
-
-		<cfreturn q>
+		<cfargument name="playlistid" type="string" default="" />
+		
+		<cfscript>
+		
+		// first get the channel which will give you the "uploads" playlist ID
+		if (!len(trim(arguments.playlistid))) {
+			var httpService = new http();
+			httpService.setURL("https://www.googleapis.com/youtube/v3/channels?part=contentDetails&maxresults=1&forUsername=" & arguments.username & "&key=" & variables.devKey);
+			httpService.setMethod("GET");
+			var channelResult = httpService.send().getPrefix();
+			var channelData = deserializeJson(channelResult.filecontent);
+			arguments.playlistid = channelData.items[1].contentDetails.relatedPlaylists.uploads;
+		}
+		
+		// then load the playlist items for the "uploads" playlist
+		var videos = getVideosForPlaylist(arguments.playlistid);
+		
+		var totNum = arrayLen(videos);
+		
+		var q = queryNew("videostatus,total,id,published,updated,categories,keywords,title,content,author,authorurl,link,description,duration,thumbnail_url,thumbnail_width,thumbnail_height,viewcount,favoritecount,averagerating,numratings,commentsurl,numcomments","varchar,integer,varchar,date,date,varchar,varchar,varchar,varchar,varchar,varchar,varchar,varchar,integer,varchar,integer,integer,integer,integer,integer,integer,varchar,integer");
+		
+		for (var video in videos) {
+			
+			queryAddRow(q);
+			
+			querySetCell(q, "videostatus", video.status.privacystatus);
+			querySetCell(q, "total", totNum);
+			querySetCell(q, "id", video.snippet.resourceId.videoId);
+			querySetCell(q, "published", handleDate(video.snippet.publishedAt));
+			querySetCell(q, "updated", "");
+			querySetCell(q, "categories", "");
+			querySetCell(q, "keywords", "");
+			querySetCell(q, "title", video.snippet.title);
+			querySetCell(q, "content", "");
+			querySetCell(q, "author", arguments.username);
+			querySetCell(q, "authorurl", "");
+			querySetCell(q, "link", "http://www.youtube.com/watch?v=" & video.snippet.resourceId.videoId & "&feature=youtube_gdata");
+			querySetCell(q, "description", video.snippet.description);
+			querySetCell(q, "duration", 0);
+			
+			querySetCell(q, "thumbnail_url", video.snippet.thumbnails.default.url);
+			querySetCell(q, "thumbnail_width", video.snippet.thumbnails.default.width);
+			querySetCell(q, "thumbnail_height", video.snippet.thumbnails.default.height);
+			querySetCell(q, "viewcount", 0);
+			querySetCell(q, "favoritecount", 0);
+			querySetCell(q, "averagerating", 0);
+			querySetCell(q, "numratings", 0);
+			querySetCell(q, "commentsurl", "");
+			querySetCell(q, "numcomments", 0);
+			
+		}
+		
+		return q;
+		
+		</cfscript>
+		
 	</cffunction>
 	<cffunction name="getEmbedCode" access="public" returnType="string" output="false" hint="Utility function to return embed html">
 		<cfargument name="videoid" type="string" required="true">
@@ -50,56 +158,99 @@
 		if (isNumeric(arguments.height)) {
 			html = html & 'height="' & arguments.height & '" ';
 		}
-		html = html & 'src="http://www.youtube.com/embed/' & arguments.videoId & '" frameborder="0" allowfullscreen></iframe>';
+		html = html & 'src="https://www.youtube.com/embed/' & arguments.videoId & '" frameborder="0" allowfullscreen></iframe>';
 		return html;
 		</cfscript>
 	</cffunction>
+	
+	<cfscript>
+	
+	private array function getPlaylistData(required string user, numeric max = 50, string channelid = "", string pagetoken = "", array playlists = []) {
+		
+		if (arguments.max gt 50) {
+			arguments.max = 50;
+		}
+		
+		if (arguments.max lt 1) {
+			arguments.max = 1;
+		}
+		
+		// first get channels, assume first channel
+		if (!len(trim(arguments.channelid))) {
+			var httpService = new http();
+			httpService.setURL("https://www.googleapis.com/youtube/v3/channels?part=id&maxresults=1&forUsername=" & arguments.user & "&key=" & variables.devKey);
+			httpService.setMethod("GET");
+			var channelIdResult = httpService.send().getPrefix();
+			var channelData = deserializeJson(channelIdResult.filecontent);
+			arguments.channelid = channelData.items[1].id;
+		}
+		
+		// load playlists for channel
+		
+		httpService = new http();
+		httpService.setURL("https://www.googleapis.com/youtube/v3/playlists?part=contentDetails%2Csnippet&channelId=" & arguments.channelid & "&maxResults=" & arguments.max & "&key=" & variables.devkey & "&pageToken=" & arguments.pageToken);
+		httpService.setMethod("GET");
+		
+		var playlistData = deserializeJson(httpService.send().getPrefix().filecontent);
+		
+		for (var item in playlistData.items) {
+			
+			arrayappend(arguments.playlists, item);
+			
+		}
+		
+		// if there is another page, get that page and return the results
+		if (structKeyExists(playlistData, "nextPageToken") && len(trim(playlistData.nextPageToken))) {
+		
+			return getPlaylistData(user = arguments.user, max = arguments.max, channelid = arguments.channelid, pagetoken = playlistData.nextPageToken, playlists = arguments.playlists);	
+			
+		}
+		
+		return arguments.playlists;
+		
+	}
+	</cfscript>
+	
 	<cffunction name="getPlaylists" access="public" returnType="query" output="false"
 			hint="Gets playlists for a user.">
 		<cfargument name="user" type="string" required="true">
 		<cfargument name="startindex" type="numeric" required="true" default="1">
-		<cfargument name="max" type="numeric" required="true" default="25">
-
-		<cfset var baseurl = "http://gdata.youtube.com/feeds/api/users/#arguments.user#/playlists">
-		<cfset var result = "">
-		<cfset var results = queryNew("total,url,published,updated,title,content,author,authorurl,videocount,playlistid,thumbnail_url,thumbnail_width,thumbnail_height")>
-		<cfset var x = "">
-		<cfset var total = "">
-		<cfset var entry = "">
-		<cfset var thumbMatches = [] />
-
-		<cfset baseurl &= "?start-index=#arguments.startindex#&max-results=#arguments.max#">
+		<cfargument name="max" type="numeric" required="false" default="50">
 		
-		<cfhttp url="#baseurl#" result="result">
-		<cfset result = xmlParse(result.filecontent)>
-		<cfif not structKeyExists(result.feed, "entry")>
-			<cfreturn results>
-		</cfif>
-
-		<cfset total = result.feed["openSearch:totalResults"].xmlText>
+		<cfscript>
+		
+		var playlists = getPlaylistData(user = arguments.user, max = arguments.max);
+		
+		var total = arraylen(playlists);
+		
+		var results = queryNew("total,url,published,updated,title,content,author,authorurl,videocount,playlistid,thumbnail_url,thumbnail_width,thumbnail_height");
+		
+		for (var playlist in playlists) {
 			
-		<cfloop index="x" from="1" to="#arrayLen(result.feed.entry)#">
-			<cfset entry = result.feed.entry[x]>
-			<cfset queryAddRow(results)>
-			<cfset querySetCell(results, "total", total)>
-			<cfset querySetCell(results, "url", entry["gd:feedLink"].xmlAttributes.href)>
-			<cfset querySetCell(results, "published", handleDate(entry.published.xmlText))>
-			<cfset querySetCell(results, "updated", handleDate(entry.updated.xmlText))>
-			<cfset querySetCell(results, "title", entry.title.xmlText)>
-			<cfset querySetCell(results, "content", entry.content.xmlText)>
-			<cfset querySetCell(results, "author", entry.author.name.xmlText)>
-			<cfset querySetCell(results, "authorurl", entry.author.uri.xmlText)>
-			<cfset querySetCell(results, "videocount", entry["gd:feedLink"].xmlAttributes.countHint)>
-			<cfset querySetCell(results, "playlistID", entry["yt:playlistId"].xmlText)>
-
-			<cfset thumbMatches = xmlSearch(entry, "media:group/media:thumbnail[@yt:name='default']") />
-			<cfif arrayLen(thumbMatches)>
-				<cfset querySetCell(results, "thumbnail_url", thumbMatches[1].xmlAttributes['url']) />
-				<cfset querySetCell(results, "thumbnail_width", thumbMatches[1].xmlAttributes['width']) />
-				<cfset querySetCell(results, "thumbnail_height", thumbMatches[1].xmlAttributes['height']) />
-			</cfif>
+			queryAddRow(results);
+			querySetCell(results, "total", total);
+			querySetCell(results, "url", "http://gdata.youtube.com/feeds/api/playlists/" & playlist.id);
+			querySetCell(results, "published", handleDate(playlist.snippet.publishedAt));
+			querySetCell(results, "updated", handleDate(playlist.snippet.publishedAt));
+			querySetCell(results, "title", playlist.snippet.title);
+			querySetCell(results, "content", playlist.snippet.description);
+			querySetCell(results, "author", "");
+			querySetCell(results, "authorurl", "");
 			
-		</cfloop>
-		<cfreturn results>
+			querySetCell(results, "videocount", playlist.contentDetails.itemCount);
+			querySetCell(results, "playlistID", playlist.id);
+
+			if (structKeyExists(playlist.snippet.thumbnails, "default")) {
+				querySetCell(results, "thumbnail_url", playlist.snippet.thumbnails.default.url);
+				querySetCell(results, "thumbnail_width", playlist.snippet.thumbnails.default.height);
+				querySetCell(results, "thumbnail_height", playlist.snippet.thumbnails.default.width);
+			}
+			
+		}
+		
+		return results;
+			
+		</cfscript>
+		
 	</cffunction>
 </cfcomponent>

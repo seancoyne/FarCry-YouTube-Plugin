@@ -21,9 +21,9 @@ aCustomColumns = [
 <ft:objectadmin 
 	lButtons="unlock"
 	typename="youtubeVideo"
-	columnList="title,author,updated,datetimecreated,datetimelastupdated"
+	columnList="title,datetimecreated,datetimelastupdated"
 	aCustomColumns="#aCustomColumns#" 
-	sortableColumns="title,author,updated,datetimecreated,datetimelastupdated"
+	sortableColumns="title,datetimecreated,datetimelastupdated"
 	lFilterFields="title,author"
 	stFilterMetadata="#stFilterMetadata#"
 	sqlorderby="title"
