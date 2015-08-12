@@ -6,7 +6,7 @@
 	<cffunction name="process" access="public" output="false" returntype="struct">
 		<cfargument name="fields" type="struct" required="true" />
 		<!--- reconfigure the YouTube wrapper --->
-		<cfset application.stPlugins.youtube.oYouTube = createObject("component","farcry.plugins.youtube.packages.custom.youtube").init(devkey = arguments.fields.devkey) />
+		<cfset application.stPlugins.youtube.oYouTube = createObject("component","farcry.plugins.youtube.packages.custom.custom").init(devkey = arguments.fields.devkey) />
 		<cfreturn super.process(argumentCollection = arguments) />
 	</cffunction>
 	
