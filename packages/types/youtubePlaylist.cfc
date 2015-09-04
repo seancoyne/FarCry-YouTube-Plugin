@@ -96,6 +96,8 @@
 			)
 		</cfquery>
 		<cfset application.fapi.flushCache("youtubePlaylist") />
+		<!--- FarCry 7.1 bug fix --->
+		<cfparam name="application.objectBroker.youtubeplaylist.timeout" default="86400" />
 	</cffunction>
 	
 </cfcomponent>
