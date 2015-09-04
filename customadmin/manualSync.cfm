@@ -29,7 +29,7 @@
 		</cfcatch>
 	</cftry>
 <cfelse>
-	<cfoutput><p>This will manually re-sync the videos from the YouTube API.  Be warned, this can take a while.  <a href="./customadmin.cfm?module=#url.module#&amp;plugin=#url.plugin#&amp;sync=1">Continue</a> when ready.</p></cfoutput>	
+	<cfoutput><p>This will manually re-sync the videos from the YouTube API.  Be warned, this can take a while.  <a href="#cgi.script_name#?#cgi.query_string#&amp;sync=1">Continue</a> when ready.</p></cfoutput>
 </cfif>
 
 <admin:footer />
