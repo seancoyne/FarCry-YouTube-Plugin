@@ -36,9 +36,19 @@
 			querySetCell(q, "description", video.snippet.description);
 			querySetCell(q, "duration", 0);
 			
-			querySetCell(q, "thumbnail_url", video.snippet.thumbnails.default.url);
-			querySetCell(q, "thumbnail_width", video.snippet.thumbnails.default.width);
-			querySetCell(q, "thumbnail_height", video.snippet.thumbnails.default.height);
+			if (structKeyExists(video.snippet.thumbnails, "high")) {
+				querySetCell(q, "thumbnail_url", video.snippet.thumbnails.high.url);
+				querySetCell(q, "thumbnail_width", video.snippet.thumbnails.high.width);
+				querySetCell(q, "thumbnail_height", video.snippet.thumbnails.high.height);
+			} else if (structKeyExists(video.snippet.thumbnails, "medium")) {
+				querySetCell(q, "thumbnail_url", video.snippet.thumbnails.medium.url);
+				querySetCell(q, "thumbnail_width", video.snippet.thumbnails.medium.width);
+				querySetCell(q, "thumbnail_height", video.snippet.thumbnails.medium.height);
+			} else {
+				querySetCell(q, "thumbnail_url", video.snippet.thumbnails.default.url);
+				querySetCell(q, "thumbnail_width", video.snippet.thumbnails.default.width);
+				querySetCell(q, "thumbnail_height", video.snippet.thumbnails.default.height);
+			}
 			querySetCell(q, "viewcount", 0);
 			querySetCell(q, "favoritecount", 0);
 			querySetCell(q, "averagerating", 0);
@@ -126,9 +136,20 @@
 			querySetCell(q, "description", video.snippet.description);
 			querySetCell(q, "duration", 0);
 			
-			querySetCell(q, "thumbnail_url", video.snippet.thumbnails.default.url);
-			querySetCell(q, "thumbnail_width", video.snippet.thumbnails.default.width);
-			querySetCell(q, "thumbnail_height", video.snippet.thumbnails.default.height);
+			if (structKeyExists(video.snippet.thumbnails, "high")) {
+				querySetCell(q, "thumbnail_url", video.snippet.thumbnails.high.url);
+				querySetCell(q, "thumbnail_width", video.snippet.thumbnails.high.width);
+				querySetCell(q, "thumbnail_height", video.snippet.thumbnails.high.height);
+			} else if (structKeyExists(video.snippet.thumbnails, "medium")) {
+				querySetCell(q, "thumbnail_url", video.snippet.thumbnails.medium.url);
+				querySetCell(q, "thumbnail_width", video.snippet.thumbnails.medium.width);
+				querySetCell(q, "thumbnail_height", video.snippet.thumbnails.medium.height);
+			} else {
+				querySetCell(q, "thumbnail_url", video.snippet.thumbnails.default.url);
+				querySetCell(q, "thumbnail_width", video.snippet.thumbnails.default.width);
+				querySetCell(q, "thumbnail_height", video.snippet.thumbnails.default.height);
+			}
+			
 			querySetCell(q, "viewcount", 0);
 			querySetCell(q, "favoritecount", 0);
 			querySetCell(q, "averagerating", 0);
@@ -239,8 +260,16 @@
 			
 			querySetCell(results, "videocount", playlist.contentDetails.itemCount);
 			querySetCell(results, "playlistID", playlist.id);
-
-			if (structKeyExists(playlist.snippet.thumbnails, "default")) {
+			
+			if (structKeyExists(playlist.snippet.thumbnails, "high")) {
+				querySetCell(results, "thumbnail_url", playlist.snippet.thumbnails.high.url);
+				querySetCell(results, "thumbnail_width", playlist.snippet.thumbnails.high.height);
+				querySetCell(results, "thumbnail_height", playlist.snippet.thumbnails.high.width);
+			} else if (structKeyExists(playlist.snippet.thumbnails, "medium")) {
+				querySetCell(results, "thumbnail_url", playlist.snippet.thumbnails.medium.url);
+				querySetCell(results, "thumbnail_width", playlist.snippet.thumbnails.medium.height);
+				querySetCell(results, "thumbnail_height", playlist.snippet.thumbnails.medium.width);
+			} else if (structKeyExists(playlist.snippet.thumbnails, "default")) {
 				querySetCell(results, "thumbnail_url", playlist.snippet.thumbnails.default.url);
 				querySetCell(results, "thumbnail_width", playlist.snippet.thumbnails.default.height);
 				querySetCell(results, "thumbnail_height", playlist.snippet.thumbnails.default.width);
