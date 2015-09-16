@@ -17,6 +17,8 @@
 				<cfcatch>
 					<cfsetting requesttimeout="1220" />
 					<cflog application="true" file="youtube" type="error" text="Error running  Manual YouTube sync (1).  Error was: #cfcatch.message#" />
+					<cfoutput><p>There was an error running the manual sync.</p></cfoutput>
+					<cfdump var="#cfcatch#" expand="true" />
 				</cfcatch>
 			</cftry>
 			<cflog application="true" file="youtube" type="information" text=" Manual YouTube sync complete!" />
