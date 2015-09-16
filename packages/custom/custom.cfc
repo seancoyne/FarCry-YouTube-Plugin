@@ -168,6 +168,7 @@
 		<cfargument name="videoid" type="string" required="true">
 		<cfargument name="width" type="string" required="false" default="425" />
 		<cfargument name="height" type="string" required="false" default="355" />
+		<cfargument name="autoplay" type="boolean" required="false" default="false" />
 		<!--- Video ID may include the URL, strip it --->
 		<cfset arguments.videoid = replace(arguments.videoid, "http://gdata.youtube.com/feeds/api/videos/","")>
 		<cfset arguments.videoid = listFirst(arguments.videoid, "&")>
@@ -179,7 +180,7 @@
 		if (isNumeric(arguments.height)) {
 			html = html & 'height="' & arguments.height & '" ';
 		}
-		html = html & 'src="https://www.youtube.com/embed/' & arguments.videoId & '" frameborder="0" allowfullscreen></iframe>';
+		html = html & 'src="https://www.youtube.com/embed/' & arguments.videoId & ((arguments.autoplay) ? '?autoplay=1' : '') & '" frameborder="0" allowfullscreen></iframe>';
 		return html;
 		</cfscript>
 	</cffunction>
