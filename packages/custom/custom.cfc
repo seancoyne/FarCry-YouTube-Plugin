@@ -181,7 +181,7 @@
 		if (isNumeric(arguments.height)) {
 			html = html & 'height="' & arguments.height & '" ';
 		}
-		html = html & 'src="https://www.youtube.com/embed/' & arguments.videoId & "?rel=" & ((arguments.related) ? '1' : '0') & ((arguments.autoplay) ? '?autoplay=1' : '') & '" frameborder="0" allowfullscreen></iframe>';
+		html = html & 'src="https://www.youtube.com/embed/' & arguments.videoId & "?rel=" & ((arguments.related) ? '1' : '0') & ((arguments.autoplay) ? '&autoplay=1' : '') & '" frameborder="0" allowfullscreen></iframe>';
 		return html;
 		</cfscript>
 	</cffunction>
