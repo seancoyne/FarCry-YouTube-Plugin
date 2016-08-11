@@ -1,6 +1,6 @@
 <cfcomponent output="false" extends="farcry.core.packages.rules.rules" displayname="YouTube: Embed Video" hint="Embeds a single video on the page">
 	
-	<cfproperty ftSeq="10" ftFieldset="Embedded Video" ftLabel="Video" ftType="uuid" type="uuid" ftJoin="youtubeVideo" name="video" ftHint="The video to embed" />
+	<cfproperty ftSeq="10" ftFieldset="Embedded Video" ftLabel="Video" ftType="uuid" type="uuid" ftJoin="youtubeVideo" name="video" ftHint="The video to embed" ftAllowCreate="false" ftAllowEdit="false" />
 	
 	<cffunction name="cleanUp" access="public" output="false" returntype="void" hint="Removes instances of this rule that reference non-existant videos">
 		
