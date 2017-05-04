@@ -53,14 +53,14 @@
 			<cfset st[key] = arguments.data[key] />
 		</cfloop>
 		<cfset st.label = st.title />
-		<cfset var stResult = setData(st) />
+		<cfset var stResult = setData(beforeSave(st, {})) />
 		<cfreturn getData(st.objectid) />
 	</cffunction>
 	
 	<cffunction name="createFromAPI" access="public" output="false" returntype="struct" hint="Creates a new FarCry record from data from the YouTube API">
 		<cfargument name="data" type="struct" required="true" />
 		<cfset arguments.data.label = arguments.data.title />
-		<cfset var stResult = createData(arguments.data) />
+		<cfset var stResult = createData(beforeSave(arguments.data, {})) />
 		<cfset var stVideo = getData(stResult.objectid) />
 		<cfreturn afterSave(stVideo) />
 	</cffunction>
@@ -112,6 +112,8 @@
 			
 			<!--- save a copy of the query for use later --->
 			<cfset stPlaylistVideos[stPlaylist.objectid] = duplicate(qVideos) />
+			
+			<cfset oPlaylist.resetVideos(playlistId = stPlaylist.objectid) />
 			
 			<!--- loop over the videos, if found, update, if not, create it --->
 			<cfloop query="qVideos">

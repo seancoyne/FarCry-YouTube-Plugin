@@ -23,14 +23,14 @@
 			<cfset stPlaylist[key] = arguments.data[key] />
 		</cfloop>
 		<cfset stPlaylist.label = arguments.data.title />
-		<cfset var stResult = setData(stPlaylist) />
+		<cfset var stResult = setData(beforeSave(stPlaylist, {})) />
 		<cfreturn getData(stPlaylist.objectid) />
 	</cffunction>
 	
 	<cffunction name="createFromAPI" access="public" output="false" returntype="struct" hint="Creates a new FarCry record from data from the YouTube API">
 		<cfargument name="data" type="struct" required="true" />
 		<cfset arguments.data.label = arguments.data.title />
-		<cfset var stResult = createData(arguments.data) />
+		<cfset var stResult = createData(beforeSave(arguments.data, {})) />
 		<cfset var stPlaylist = getData(stResult.objectid) />
 		<cfreturn afterSave(stProperties = stPlaylist) />
 	</cffunction>
@@ -67,12 +67,19 @@
 		</cfif>
 	</cffunction>
 	
+	<cffunction name="resetVideos" access="public" output="false" returntype="void" hint="Removes all videos from playlist (useful when sync'ing to be sure all videos which have been removed in YouTube are remove in FarCry)">
+		<cfargument name="playlistId" type="uuid" required="true" default="" hint="" />
+		<cfset var stPlaylist = getData(arguments.playlistId) />
+		<cfset stPlaylist.aVideos = [] />
+		<cfset setData(beforeSave(stPlaylist, {})) />
+	</cffunction>
+	
 	<cffunction name="addVideoToPlaylist" access="public" output="false" returntype="void" hint="Adds the specified video to the specified playlist">
 		<cfargument name="playlistId" type="uuid" required="true" default="" hint="" />
 		<cfargument name="videoId" type="uuid" required="true" default="" hint="" />
 		<cfset var stPlaylist = getData(arguments.playlistId) />
 		<cfset arrayAppend(stPlaylist.aVideos,arguments.videoId) />
-		<cfset setData(stPlaylist) />
+		<cfset setData(beforeSave(stPlaylist, {})) />
 	</cffunction>
 	
 	<cffunction name="removeVideoFromAllPlaylists" access="public" output="false" returntype="void" hint="Removes the specified video from any playlist is appears on">
@@ -84,7 +91,7 @@
 		<cfloop query="q">
 			<cfset var stPlaylist = getData(q.parentid[q.currentRow]) />
 			<cfset arrayDeleteAt(stPlaylist.aVideos,arrayFindNoCase(stPlaylist.aVideos,arguments.objectid)) />
-			<cfset setData(stPlaylist) />
+			<cfset setData(beforeSave(stPlaylist, {})) />
 		</cfloop>
 	</cffunction>
 
