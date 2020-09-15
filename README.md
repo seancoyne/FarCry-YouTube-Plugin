@@ -34,11 +34,11 @@ Installation
 Configuration
 -------------
 
-You will need a Developer Key from YouTube.  You can obtain one here: http://code.google.com/apis/youtube/dashboard/
+You will need a Developer Key from YouTube.  You can find out how to obtain one here: https://developers.google.com/youtube/v3/docs
 
 You will also need a YouTube account with videos and/or playlists.  You can include other users' videos in your playlists.  The plugin will sync those videos with FarCry as well.
 
-Once you have your dev key and username you should login into the FarCry webtop, navigate to "Admin", "General Admin", "Edit Config", "YouTube API" and enter these into the configuration form.
+Once you have your dev key and channel ID you should login into the FarCry webtop, navigate to "Admin", "General Admin", "Edit Config", "YouTube API" and enter these into the configuration form.
 
 Lastly, you will need to start the scheduled task.  This is done in the webtop under "Admin", "General Admin", "Scheduled Tasks":
 

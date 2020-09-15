@@ -2,20 +2,29 @@
 	
 	<cfproperty ftSeq="100" ftFieldset="Playlist" ftLabel="Playlist ID" ftDisplayOnly="true" name="playlistid" type="nstring" ftType="string" default="" />
 	<cfproperty ftSeq="110" ftFieldset="Playlist" ftLabel="Title" ftDisplayOnly="true" name="title" bLabel="true" type="nstring" ftType="string" default="" />
-	<cfproperty ftSeq="120" ftFieldset="Playlist" ftLabel="Author" ftDisplayOnly="true" name="author" type="nstring" ftType="string" default="" />
-	<cfproperty ftSeq="130" ftFieldset="Playlist" ftLabel="Author URL" ftDisplayOnly="true" name="authorurl" type="nstring" ftType="url" default="" />
 	<cfproperty ftSeq="140" ftFieldset="Playlist" ftLabel="Content" ftDisplayOnly="true" name="content" type="longchar" ftType="longchar" default="" />
-	<cfproperty ftSeq="150" ftFieldset="Playlist" ftLabel="URL" ftDisplayOnly="true" name="url" type="nstring" ftType="url" default="" />
 	
 	<cfproperty ftSeq="200" ftFieldset="Status" ftLabel="Published (YouTube)" ftDisplayOnly="true" name="published" type="date" ftType="datetime" default="" />
-	<cfproperty ftSeq="210" ftFieldset="Status" ftLabel="Updated (YouTube)" ftDisplayOnly="true" name="updated" type="date" ftType="datetime" default="" />
 	
-	<cfproperty ftSeq="300" ftFieldset="Statistics" ftLabel="Video Count" ftDisplayOnly="true" name="videocount" type="integer" ftType="integer" default="0" />
-	<cfproperty ftSeq="310" ftFieldset="Statistics" ftLabel="Total" ftDisplayOnly="true" name="total" type="integer" ftType="integer" default="0" />
+	<cfproperty ftSeq="400" ftFieldset="Videos" ftLabel="Videos" name="aVideos" type="array" ftType="array" ftJoin="youtubeVideo" ftDisplayOnly="true" />
 	
-	<cfproperty ftSeq="400" ftFieldset="Videos" ftLabel="Videos" name="aVideos" type="array" ftType="array" ftJoin="youtubeVideo" />
+	<cfscript>
 	
-	<cffunction name="updateFromAPI" access="public" output="false" returntype="struct" hint="Updates a FarCry record with data from the YouTube API">
+	public struct function getById(required string id) {
+		
+		var q = application.fapi.getContentObjects(typename = "youtubePlaylist", lProperties = "objectid", playlistid_eq = arguments.id);
+		
+		if (!q.recordcount) {
+			return {};
+		}
+		
+		return getData(q.objectid[1]);
+		
+	}	
+	
+	</cfscript>
+	
+	<!--- <cffunction name="updateFromAPI" access="public" output="false" returntype="struct" hint="Updates a FarCry record with data from the YouTube API">
 		<cfargument name="data" type="struct" required="true" />
 		<cfset var stPlaylist = getPlaylistByURL(arguments.data.url) />
 		<cfset var key = "" />
@@ -105,6 +114,6 @@
 		<cfset application.fapi.flushCache("youtubePlaylist") />
 		<!--- FarCry 7.1 bug fix --->
 		<cfparam name="application.objectBroker.youtubeplaylist.timeout" default="86400" />
-	</cffunction>
+	</cffunction> --->
 	
 </cfcomponent>

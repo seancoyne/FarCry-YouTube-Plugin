@@ -1,26 +1,28 @@
 <cfsetting enablecfoutputonly="true" />
-<!--- @@displayname: YouTube Playlist Administration --->
+<!--- @@displayname: YouTube Video Administration --->
 <!--- @@author: Sean Coyne (http://www.n42designs.com/) --->
 
-<cfimport taglib="/farcry/core/tags/admin/" prefix="admin" />
 <cfimport taglib="/farcry/core/tags/formtools" prefix="ft" />
-
-<admin:header title="Playlists" />
 
 <cfset stFilterMetadata = {} />
 <cfset stFilterMetadata.title = { ftDisplayOnly = false } />
 <cfset stFilterMetadata.author = { ftDisplayOnly = false } />
 
+<cfscript>
+aCustomColumns = [
+	{ webskin = "cellThumbnail.cfm", title = "Thumbnail", sortable = false, property = "thumbnail_url" }
+];
+</cfscript>
+
 <ft:objectadmin 
 	lButtons="unlock"
-	typename="youtubePlaylist"
-	columnList="title,published,datetimecreated,datetimelastupdated" 
-	sortableColumns="title,published,datetimecreated,datetimelastupdated"
-	lFilterFields="title,author"
+	typename="youtubeVideo"
+	columnList="title,id,datetimecreated,datetimelastupdated"
+	aCustomColumns="#aCustomColumns#" 
+	sortableColumns="title,id,datetimecreated,datetimelastupdated"
+	lFilterFields="title,id"
 	stFilterMetadata="#stFilterMetadata#"
 	sqlorderby="title"
 	plugin="youtube" />
-
-<admin:footer />
 
 <cfsetting enablecfoutputonly="false" />

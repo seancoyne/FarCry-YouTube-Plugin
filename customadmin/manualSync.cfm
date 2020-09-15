@@ -5,6 +5,10 @@
 <cfimport taglib="/farcry/core/tags/webskin" prefix="skin" />
 <cfimport taglib="/farcry/core/tags/admin" prefix="admin" />
 
+<cfscript>
+application.fc.lib.youtube = new farcry.plugins.youtube.packages.lib.youtube();	
+</cfscript>
+
 <admin:header title="Manual Sync" />
 
 <cfif structKeyExists(url,"sync")>
@@ -13,7 +17,8 @@
 		<cflock name="youTubeSync" timeout="5" throwontimeout="true">
 			<cflog application="true" file="youtube" type="information" text="Starting Manual YouTube sync..." />
 			<cftry>
-				<cfset application.fapi.getContentType("youtubeVideo").sync() />
+				<!--- <cfset application.fapi.getContentType("youtubeVideo").sync() /> --->
+				<cfset application.fc.lib.youtube.sync() />
 				<cfcatch>
 					<cfsetting requesttimeout="1220" />
 					<cflog application="true" file="youtube" type="error" text="Error running  Manual YouTube sync (1).  Error was: #cfcatch.message#" />

@@ -4,12 +4,16 @@
 
 <cfimport taglib="/farcry/core/tags/webskin" prefix="skin" />
 
+<cfscript>
+application.fc.lib.youtube = new farcry.plugins.youtube.packages.lib.youtube();	
+</cfscript>
+
 <!--- don't run this concurrently --->
 <cftry>
 	<cflock name="youTubeSync" timeout="5" throwontimeout="true">
 		<cflog application="true" file="youtube" type="information" text="Starting YouTube sync..." />
 		<cftry>
-			<cfset application.fapi.getContentType("youtubeVideo").sync() />
+			<cfset application.fc.lib.youtube.sync() />
 			<cfcatch>
 				<cfsetting requesttimeout="1220" />
 				<cflog application="true" file="youtube" type="error" text="Error running YouTube sync (1).  Error was: #cfcatch.message#" />
