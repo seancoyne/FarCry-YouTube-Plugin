@@ -5,7 +5,7 @@
 <cfimport taglib="/farcry/core/tags/webskin" prefix="skin" />
 
 <cfoutput>
-<div class="embed-responsive embed-respsonsive-16by9">
+<div class="embed-responsive embed-responsive-16by9">
 	<iframe src="https://www.youtube.com/embed/#stObj.id#" allowfullscreen></iframe>
 </div>
 </cfoutput>

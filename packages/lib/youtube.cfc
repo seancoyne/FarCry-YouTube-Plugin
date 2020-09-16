@@ -110,6 +110,7 @@ component {
 		}, { datasource = application.dsn });
 		
 		for (var row in q) {
+			oPlaylist.delete(objectid = row.objectid);
 			oPlaylist.deleteData(objectid = row.objectid);
 		}
 		
@@ -124,6 +125,7 @@ component {
 		}, { datasource = application.dsn });
 		
 		for (var row in q) {
+			oVideo.delete(objectid = row.objectid);
 			oVideo.deleteData(objectid = row.objectid);
 		}
 		
