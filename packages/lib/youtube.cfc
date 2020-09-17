@@ -72,6 +72,9 @@ component {
 					stVideo = oVideo.getData(stVideoSaveResult.objectid);
 				}
 				
+				application.fc.factory.farFU.setSystemFU(objectid = stVideo.objectId, typeName = "youtubeVideo");
+				
+				
 				arrayAppend(stPlaylist.aVideos, stVideo.objectid);
 				
 				arrayAppend(videoIdsFound, stVideo.id);
@@ -87,7 +90,10 @@ component {
 			} else {
 				var stPlaylistSaveResult = oPlaylist.createData(stPlaylist);
 				oPlaylist.afterSave(oPlaylist.getData(stPlaylistSaveResult.objectid));
+				stPlaylist = oPlaylist.getData(stPlaylistSaveResult.objectid);
 			}
+			
+			application.fc.factory.farFU.setSystemFU(objectid = stPlaylist.objectId, typeName = "youtubePlaylist");
 			
 			arrayAppend(playlistIdsFound, stPlaylist.playlistid);
 			
