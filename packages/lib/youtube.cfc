@@ -137,7 +137,7 @@ component {
 		
 	}
 	
-	public array function getVideosForPlaylist(required string playlistId, required string channelId, required string apiKey) {
+	public array function getVideosForPlaylist(required string playlistId, required string channelId, required string apiKey, array items = [], string pageToken = "") {
 		
 		var uri = "https://www.googleapis.com/youtube/v3/playlistItems";
 		
@@ -145,8 +145,17 @@ component {
 			{ name = "playlistId", value = arguments.playlistId, type = "url" },
 			{ name = "key", value = arguments.apiKey, type = "url" },
 			{ name = "part", value = "snippet", type = "url" },
-			{ name = "part", value = "status", type = "url" }
+			{ name = "part", value = "status", type = "url" },
+			{ name = "maxResults", value = 50, type = "url" }
 		];
+
+		if (len(trim(arguments.pageToken))) {
+			arrayAppend(params, {
+				name = "pageToken",
+				value = arguments.pageToken,
+				type = "url"
+			});
+		}
 		
 		var httpService = new http();
 		
@@ -160,22 +169,39 @@ component {
 		var httpResult = httpService.send().getPrefix();
 		
 		var result = deserializeJSON(httpResult.filecontent);
+
+		arrayAppend(arguments.items, result.items, true);
 		
-		return arrayFilter(result.items, function(item){
+		if (structkeyexists(result, "nextPageToken")) {
+			var args = duplicate(arguments);
+			args.pageToken = result.nextPageToken;
+			return getVideosForPlaylist(argumentCollection = args);
+		}
+
+		return arrayFilter(arguments.items, function(item){
 			return item.status.privacyStatus eq "public" && item.snippet.resourceId.kind eq "youtube##video";
 		});
 		
 	}
 	
-	public array function getPlaylists(required string channelId, required string apiKey) {
+	public array function getPlaylists(required string channelId, required string apiKey, array items = [], string pageToken = "") {
 		
 		var uri = "https://www.googleapis.com/youtube/v3/playlists";
 		
 		var params = [
 			{ name = "channelId", value = arguments.channelId, type = "url" },
 			{ name = "key", value = arguments.apiKey, type = "url" },
-			{ name = "part", value = "snippet", type = "url" }
+			{ name = "part", value = "snippet", type = "url" },
+			{ name = "maxResults", value = 50, type = "url" }
 		];
+		
+		if (structKeyExists(arguments, "pageToken")) {
+			arrayAppend(params, {
+				name = "pageToken",
+				value = arguments.pageToken,
+				type = "url"
+			});
+		}
 		
 		var httpService = new http();
 		
@@ -190,9 +216,16 @@ component {
 		
 		var result = deserializeJSON(httpResult.filecontent);
 		
-		return result.items;
+		arrayAppend(arguments.items, result.items, true);
+		
+		if (structKeyExists(result, "nextPageToken")) {
+			var args = duplicate(arguments);
+			args.pageToken = result.nextPageToken;
+			return getPlaylists(argumentCollection = args);
+		}
+		
+		return arguments.items;
 		
 	}
-	
 	
 }
