@@ -18,44 +18,48 @@
 		var q = queryNew("videostatus,total,id,published,updated,categories,keywords,title,content,author,authorurl,link,description,duration,thumbnail_url,thumbnail_width,thumbnail_height,viewcount,favoritecount,averagerating,numratings,commentsurl,numcomments","varchar,integer,varchar,date,date,varchar,varchar,varchar,varchar,varchar,varchar,varchar,varchar,integer,varchar,integer,integer,integer,integer,integer,integer,varchar,integer");
 		
 		for (var video in videos) {
-			
-			queryAddRow(q);
-			
-			querySetCell(q, "videostatus", video.status.privacystatus);
-			querySetCell(q, "total", totNum);
-			querySetCell(q, "id", video.snippet.resourceId.videoId);
-			querySetCell(q, "published", handleDate(video.snippet.publishedAt));
-			querySetCell(q, "updated", "");
-			querySetCell(q, "categories", "");
-			querySetCell(q, "keywords", "");
-			querySetCell(q, "title", video.snippet.title);
-			querySetCell(q, "content", "");
-			querySetCell(q, "author", "");
-			querySetCell(q, "authorurl", "");
-			querySetCell(q, "link", "http://www.youtube.com/watch?v=" & video.snippet.resourceId.videoId & "&feature=youtube_gdata");
-			querySetCell(q, "description", video.snippet.description);
-			querySetCell(q, "duration", 0);
-			
-			if (structKeyExists(video.snippet.thumbnails, "high")) {
-				querySetCell(q, "thumbnail_url", video.snippet.thumbnails.high.url);
-				querySetCell(q, "thumbnail_width", video.snippet.thumbnails.high.width);
-				querySetCell(q, "thumbnail_height", video.snippet.thumbnails.high.height);
-			} else if (structKeyExists(video.snippet.thumbnails, "medium")) {
-				querySetCell(q, "thumbnail_url", video.snippet.thumbnails.medium.url);
-				querySetCell(q, "thumbnail_width", video.snippet.thumbnails.medium.width);
-				querySetCell(q, "thumbnail_height", video.snippet.thumbnails.medium.height);
-			} else {
-				querySetCell(q, "thumbnail_url", video.snippet.thumbnails.default.url);
-				querySetCell(q, "thumbnail_width", video.snippet.thumbnails.default.width);
-				querySetCell(q, "thumbnail_height", video.snippet.thumbnails.default.height);
+
+			if (structKeyExists(video, "status") and video.status.privacystatus neq "privacyStatusUnspecified") {
+
+				queryAddRow(q);
+				
+				querySetCell(q, "videostatus", video.status.privacystatus);
+				querySetCell(q, "total", totNum);
+				querySetCell(q, "id", video.snippet.resourceId.videoId);
+				querySetCell(q, "published", handleDate(video.snippet.publishedAt));
+				querySetCell(q, "updated", "");
+				querySetCell(q, "categories", "");
+				querySetCell(q, "keywords", "");
+				querySetCell(q, "title", video.snippet.title);
+				querySetCell(q, "content", "");
+				querySetCell(q, "author", "");
+				querySetCell(q, "authorurl", "");
+				querySetCell(q, "link", "http://www.youtube.com/watch?v=" & video.snippet.resourceId.videoId & "&feature=youtube_gdata");
+				querySetCell(q, "description", video.snippet.description);
+				querySetCell(q, "duration", 0);
+				
+				if (structKeyExists(video.snippet.thumbnails, "high")) {
+					querySetCell(q, "thumbnail_url", video.snippet.thumbnails.high.url);
+					querySetCell(q, "thumbnail_width", video.snippet.thumbnails.high.width);
+					querySetCell(q, "thumbnail_height", video.snippet.thumbnails.high.height);
+				} else if (structKeyExists(video.snippet.thumbnails, "medium")) {
+					querySetCell(q, "thumbnail_url", video.snippet.thumbnails.medium.url);
+					querySetCell(q, "thumbnail_width", video.snippet.thumbnails.medium.width);
+					querySetCell(q, "thumbnail_height", video.snippet.thumbnails.medium.height);
+				} else {
+					querySetCell(q, "thumbnail_url", video.snippet.thumbnails.default.url);
+					querySetCell(q, "thumbnail_width", video.snippet.thumbnails.default.width);
+					querySetCell(q, "thumbnail_height", video.snippet.thumbnails.default.height);
+				}
+				querySetCell(q, "viewcount", 0);
+				querySetCell(q, "favoritecount", 0);
+				querySetCell(q, "averagerating", 0);
+				querySetCell(q, "numratings", 0);
+				querySetCell(q, "commentsurl", "");
+				querySetCell(q, "numcomments", 0);
+
 			}
-			querySetCell(q, "viewcount", 0);
-			querySetCell(q, "favoritecount", 0);
-			querySetCell(q, "averagerating", 0);
-			querySetCell(q, "numratings", 0);
-			querySetCell(q, "commentsurl", "");
-			querySetCell(q, "numcomments", 0);
-			
+
 		}
 		
 		return q;

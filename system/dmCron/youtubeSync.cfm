@@ -4,6 +4,13 @@
 
 <cfimport taglib="/farcry/core/tags/webskin" prefix="skin" />
 
+<cfscript>
+application.stPlugins.youtube = {
+		oYouTube = createObject("component","farcry.plugins.youtube.packages.custom.custom").init(devkey = application.fapi.getConfig(key = 'youtube', name = 'devkey', default="")),
+		oCustomFunctions = createObject("component","farcry.plugins.youtube.packages.custom.customFunctions")
+	};
+</cfscript>
+
 <!--- don't run this concurrently --->
 <cftry>
 	<cflock name="youTubeSync" timeout="5" throwontimeout="true">

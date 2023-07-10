@@ -7,6 +7,13 @@
 
 <admin:header title="Manual Sync" />
 
+<cfscript>
+application.stPlugins.youtube = {
+		oYouTube = createObject("component","farcry.plugins.youtube.packages.custom.custom").init(devkey = application.fapi.getConfig(key = 'youtube', name = 'devkey', default="")),
+		oCustomFunctions = createObject("component","farcry.plugins.youtube.packages.custom.customFunctions")
+	};
+</cfscript>
+
 <cfif structKeyExists(url,"sync")>
 	<!--- don't run this concurrently --->
 	<cftry>
